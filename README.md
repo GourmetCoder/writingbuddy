@@ -8,14 +8,15 @@ A small scale commandline program for generating random text.
 
 Use the code with following command.
 ```
-writingbuddy.py "path to datafile" "amount of generated words" "cleaner file"
+writingbuddy.py "path to datafile" "cleaner file"
 ```
 A more concrete example.
 ```
-writingbuddy.py D:\users\username\path\to\file.txt 30 D:\user\username\path\to\file.txt
+writingbuddy.py D:\users\username\path\to\file.txt D:\user\username\path\to\file.txt
 ```
 
 Example of proper datafile and cleaner file can be found from ```files``` folder.  
+The example file for text data might cause crashes if used, only use it to check possible formatting for the used files.  
 The Cleaner file is an optional argument.
 
 ---
@@ -39,4 +40,4 @@ Because I am lazy, deal with it.
 
 The program crashes if it doesn't find next word in the Markov Chain.
 
-Formatting of the output is pretty obnoxious.
+Formatting of the output is fairly obnoxious.

@@ -4,8 +4,17 @@
 import numpy as np
 import logic.file_loader as file_loader
 
-class WordGenerator:
+class SenteceGenerator:
     def __init__(self, path, clean_list=[]):
+        self.end_characters = [
+            ".",
+            "!",
+            "?"
+        ]
+        self.initial_ends = [
+            '"',
+            "”"
+        ]
         origin_file = file_loader.FileLoader(path).load_file(clean_list=clean_list)
         self.corpus = origin_file.split()
         pairs = self.make_pairs(self.corpus)
@@ -17,7 +26,7 @@ class WordGenerator:
         self.capitals = list(capitals)
 
     def _add_to_capitals(self, word, capitals):
-        if word not in capitals and word[0].isupper():
+        if word not in capitals and word[0].isupper() and word[len(word)-1] not in self.end_characters and word[len(word)-1] not in self.initial_ends:
             capitals.add(word)
     
     def _add_to_words(self, word_1, word_2):
@@ -30,12 +39,14 @@ class WordGenerator:
         for i in range(len(corpus)-1):
             yield(corpus[i], corpus[i+1])
 
-    def generate_text(self, length, start_word=None):
+    def generate_sentence(self, start_word=None, final_exceptions=[]):
         if(start_word==None):
             start_word = np.random.choice(self.capitals)
         first_word = start_word
         chain = [first_word]
-        n_words = length
-        for _ in range(n_words):
-            chain.append(np.random.choice(self.word_dict[chain[-1]]))
+        while True:
+            word = np.random.choice(self.word_dict[chain[-1]])
+            chain.append(word)
+            if word[len(word)-1] in self.end_characters and word.lower() not in final_exceptions:
+                break
         return ' '.join(chain)
