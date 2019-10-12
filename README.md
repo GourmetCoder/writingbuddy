@@ -8,14 +8,15 @@ A small scale commandline program for generating random text.
 
 Use the code with following command.
 ```
-writingbuddy.py "path to datafile" "amount of generated words"
+writingbuddy.py "path to datafile" "amount of generated words" "cleaner file"
 ```
 A more concrete example.
 ```
-writingbuddy.py D:\users\username\path\to\file.txt 30
+writingbuddy.py D:\users\username\path\to\file.txt 30 D:\user\username\path\to\file.txt
 ```
 
-Example of proper 
+Example of proper datafile and cleaner file can be found from ```files``` folder.  
+The Cleaner file is an optional argument.
 
 ---
 
