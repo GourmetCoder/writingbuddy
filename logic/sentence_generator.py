@@ -106,17 +106,24 @@ class SenteceGenerator:
             sentence_count = collections.Counter(' '.join(chain))
             word = self._get_next_word(chain, rand)
             if sentence_count['"'] % 2 == 0:
-                if word[-1] != '"' or (word[0] == '"' and word[-1] == '"'):
-                    chain.append(word)
-                elif attempt >= 5000:
-                    chain.append(word.replace('"', ''))
-                    attempt = 0
+                if len(word) >= 1:
+                    if word[-1] != '"' or (word[0] == '"' and word[-1] == '"'):
+                        chain.append(word)
+                    elif attempt >= 5000:
+                        chain.append(word.replace('"', ''))
+                        attempt = 0
+                else:
+                    word = "."
+                    chain.append(".")
             else:
-                if word[0] != '"':
+                if len(word) >= 1 and word[0] != '"':
                     chain.append(word)
-                elif attempt >= 5000:
+                elif len(word) >= 1 and  attempt >= 5000:
                     chain.append(word.replace('"', ''))
                     attempt = 0
+                else:
+                    word = "."
+                    chain.append(word)
             sentence_count = collections.Counter(' '.join(chain))
             if word[-1] in self.end_characters and word.lower() not in final_exceptions:
                 if sentence_count['"'] % 2 == 0:
@@ -140,7 +147,11 @@ class SenteceGenerator:
         return word
 
     def _chain_length_1(self, chain):
-        return np.random.choice(self.single_word_dict[chain[-1]])
+        singles = self.single_word_dict.get(chain[-1])
+        if singles != None and singles != []:
+            return np.random.choice(self.single_word_dict[chain[-1]])
+        else:
+            return ""
 
     def _chain_length_2(self, chain, rand):
         if rand.randrange(10) < 1:
@@ -161,7 +172,7 @@ class SenteceGenerator:
             return np.random.choice(self.triple_word_dict[ (chain[-3], chain[-2], chain[-1]) ])
 
     def _chain_length_4(self, chain, rand):
-        if rand.randrange(10) < 1:
+        if rand.randrange(10) < 2:
             return self._chain_length_2(chain, rand)
         quads = self.quad_word_dict.get( (chain[-4], chain[-3], chain[-2], chain[-1]) )
         if quads == None or quads == []:

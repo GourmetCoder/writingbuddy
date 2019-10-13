@@ -6,7 +6,6 @@ class FileLoader:
         loaded_file = open(self.path, encoding='utf8').read()
         for pair in clean_list:
             loaded_file = loaded_file.replace(pair[0], pair[1])
-            print("cleaned " + pair[0] + " from the file...")
         return loaded_file
 
     def write_dict_into_file(self, dictionary: dict):
