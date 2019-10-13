@@ -16,8 +16,7 @@ writingbuddy.py D:\users\username\path\to\file.txt D:\user\username\path\to\file
 ```
 
 Example of proper datafile and cleaner file can be found from ```files``` folder.  
-The example file for text data might cause crashes if used, only use it to check possible formatting for the used files.  
-The Cleaner file is an optional argument.
+The example file for text data might cause crashes if used, only use it to check possible formatting for the used files.
 
 ---
 
