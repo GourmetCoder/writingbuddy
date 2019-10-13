@@ -27,10 +27,12 @@ class SenteceGenerator:
         capitals = set()
         names = set()
         amount = 0
+        generation_text = "Generating links"
         for word_1, word_2, word_3, word_4, word_5 in links:
             amount += 1
             if amount % 100000 == 0:
-                print ("Generating links...")
+                print (generation_text)
+                generation_text = generation_text + "."
             self._add_to_single_words(word_1, word_2)
             self._add_to_double_words(word_1, word_2, word_3)
             self._add_to_triple_words(word_1, word_2, word_3, word_4)
@@ -40,7 +42,7 @@ class SenteceGenerator:
         print("Data generated from " + str(amount) + " words.")
         self.capitals = list(capitals)
         self.names = list(names)
-        print(names)
+        print("\n")
 
     def _add_to_capitals(self, word, capitals):
         if word not in capitals and (word[0].isupper() or (len(word) > 1 and word[1].isupper())) and word[-1] not in self.end_characters and word[-1] not in self.initial_ends:
