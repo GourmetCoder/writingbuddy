@@ -19,6 +19,18 @@ if __name__ == '__main__':
             "mrs.",
             "mx.",
             "ms.",
+            '"mr.',
+            '"mrs.',
+            '"mx.',
+            '"ms.',
+            '“mr.',
+            '“mrs.',
+            '“mx.',
+            '‘ms.',
+            '‘mr.',
+            '‘mrs.',
+            '‘mx.',
+            '‘ms.'
         ]
         final_out_put = []
         while True:
