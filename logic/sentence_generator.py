@@ -22,6 +22,7 @@ class SenteceGenerator:
         self.triple_word_dict = {}
         self.quad_word_dict = {}
         self.similarity_helper = set()
+        self.used_names = set()
         capitals = set()
         names = set()
         loading_amount = 0
@@ -142,8 +143,10 @@ class SenteceGenerator:
         else:
             word = self._chain_length_4(chain, rand)
         if word in self.names:
-            if rand.randrange(10) < 1:
-                word = self.names[rand.randrange(len(self.names))]
+            if len(self.used_names) > 0:
+                if word not in self.used_names:
+                    if rand.randrange(10) < min(8,len(self.used_names)):
+                        word = list(self.used_names)[rand.randrange(len(self.used_names))]
         return word
 
     def _chain_length_1(self, chain):
@@ -152,6 +155,12 @@ class SenteceGenerator:
             return np.random.choice(self.single_word_dict[chain[-1]])
         else:
             return ""
+
+    def record_names_from_sentence(self, sentence):
+        for word in sentence.split(" "):
+            if word in self.names:
+                if word not in self.used_names:
+                    self.used_names.add(word)
 
     def _chain_length_2(self, chain, rand):
         if rand.randrange(10) < 1:

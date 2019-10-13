@@ -41,6 +41,7 @@ if __name__ == '__main__':
             if keep == 'y':
                 start_word = generated_text.split(" ")[len(generated_text.split(" "))-1]
                 final_out_put.append(generated_text)
+                generator.record_names_from_sentence(generated_text)
             elif keep == 'q':
                 break
             print("\n")
