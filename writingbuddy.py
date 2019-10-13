@@ -29,7 +29,8 @@ if __name__ == '__main__':
             '‘mr.',
             '‘mrs.',
             '‘mx.',
-            '‘ms.'
+            '‘ms.',
+            'jr.'
         ]
         final_out_put = []
         start_word = None
@@ -46,4 +47,4 @@ if __name__ == '__main__':
         print("\n\n".join(final_out_put))
     except argument_not_defined_error.ArgumentNotDefinedError:
         print("The program did not recieve required amount of arguments!/n")
-        print("    Run the program with following command 'writingbuddy.py path_to.data path_to.cleaner")
+        print("    Run the program with following command 'writingbuddy.py path_to.data path_to.cleaner'")

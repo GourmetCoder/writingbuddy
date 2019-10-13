@@ -1,6 +1,3 @@
-# Original code was written by Ben Shaver in https://towardsdatascience.com/simulating-text-with-markov-chains-in-python-1a27e6d13fc6
-# This code is slightly edited version
-
 import numpy as np
 import logic.file_loader as file_loader
 import collections
@@ -24,13 +21,17 @@ class SenteceGenerator:
         self.double_word_dict = {}
         self.triple_word_dict = {}
         self.quad_word_dict = {}
+        self.similarity_helper = set()
         capitals = set()
         names = set()
+        loading_amount = 0
         amount = 0
         generation_text = "Generating links"
         for word_1, word_2, word_3, word_4, word_5 in links:
+            loading_amount += 1
             amount += 1
-            if amount % 100000 == 0:
+            if loading_amount == 100000:
+                loading_amount = 0
                 print (generation_text)
                 generation_text = generation_text + "."
             self._add_to_single_words(word_1, word_2)
@@ -39,10 +40,14 @@ class SenteceGenerator:
             self._add_to_quad_words(word_1, word_2, word_3, word_4, word_5)
             self._add_to_capitals(word_1, capitals)
             self._add_to_names(word_1, word_2, names)
-        print("Data generated from " + str(amount) + " words.")
         self.capitals = list(capitals)
         self.names = list(names)
+        print("Data generated from " + str(amount) + " words.")
         print("\n")
+
+    def _clean_word(self, word):
+        word = word.replace(".", '').replace(",", '').replace("!", '').replace("?", '').replace("(", '').replace(")", '').replace("'", '').replace('"', '').replace(";", "")
+        return word.lower()
 
     def _add_to_capitals(self, word, capitals):
         if word not in capitals and (word[0].isupper() or (len(word) > 1 and word[1].isupper())) and word[-1] not in self.end_characters and word[-1] not in self.initial_ends:
@@ -138,7 +143,7 @@ class SenteceGenerator:
         return np.random.choice(self.single_word_dict[chain[-1]])
 
     def _chain_length_2(self, chain, rand):
-        if rand.randrange(10) < 3:
+        if rand.randrange(10) < 1:
             return self._chain_length_1(chain)
         doubles = self.double_word_dict.get( (chain[-2], chain[-1]) )
         if doubles == None or doubles == []:
@@ -147,7 +152,7 @@ class SenteceGenerator:
             return np.random.choice(self.double_word_dict[ (chain[-2], chain[-1]) ])
 
     def _chain_length_3(self, chain, rand):
-        if rand.randrange(10) < 2:
+        if rand.randrange(10) < 1:
             return self._chain_length_2(chain, rand)
         triples = self.triple_word_dict.get( (chain[-3], chain[-2], chain[-1]) )
         if triples == None or triples == []:
