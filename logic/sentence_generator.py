@@ -43,6 +43,7 @@ class SenteceGenerator:
             self._add_to_names(word_1, word_2, names)
         self.capitals = list(capitals)
         self.names = list(names)
+        self._build_similar_words()
         print("Data generated from " + str(amount) + " words.")
         print("\n")
 
@@ -65,6 +66,63 @@ class SenteceGenerator:
             return "'" not in word and '.' not in word and ',' not in word and '…' not in word and '?' not in word and '!' not in word and '"' not in word and ':' not in word and '-' not in word and '/' not in word and '(' not in word and ')' not in word
         else:
             return False
+    
+    def _build_similar_words(self):
+        print("Building a transpose...")
+        transposes = [{}]
+        current_transpose = 0
+        similar_words = {}
+        maximum = len(self.double_word_dict.items())
+        current = 0
+        val = 0
+        for key, values in self.double_word_dict.items():
+            val += 1
+            if current == 45000:
+                print("Progress: " + str(val) + " / " + str(maximum))
+                current = 0
+                current_transpose += 1
+                transposes.append({})
+            else:
+                current += 1
+            value_set = set([key])
+            for value in values:
+                temp_value = value.replace("'", "").replace(".", "").replace(" ", "").replace("!", "").replace("?", "").replace(",", "").replace("-", "").replace('"', '')
+                if temp_value != "a" and temp_value != "an" and temp_value != "the":
+                    if value in transposes[current_transpose]:
+                        transposes[current_transpose][value] = transposes[current_transpose][value].union(value_set)
+                    else:
+                        transposes[current_transpose].update({value : value_set})
+        maximum = 0
+        for transpose in transposes:
+            maximum += len(transpose)
+        current = 0
+        for transpose in transposes:
+            for key, value in transpose.items():
+                print("Progress: " + str(current) + " / " + str(maximum) + " - len " + str(len(value) * len(value)))
+                current += 1
+                for quad_1 in value:
+                    for quad_2 in value:
+                        if quad_1 != quad_2:
+                            word_set_1 = set(self.double_word_dict.get(quad_1))
+                            word_set_2 = set(self.double_word_dict.get(quad_2))
+                            intersection_size = len(word_set_1.intersection(word_set_2))
+                            larger_size = max(len(word_set_1), len(word_set_2))
+                            if larger_size > 1:
+                                similiarity = intersection_size / larger_size
+                                if similiarity > 0.75:
+                                    if quad_1 in similar_words:
+                                        similar_words[quad_1].add(quad_2)
+                                    else:
+                                        similar_words.update({quad_1 : set([quad_2])})
+                                    if quad_2 in similar_words:
+                                        similar_words[quad_2].add(quad_1)
+                                    else:
+                                        similar_words.update({quad_2 : set([quad_1])})
+        self.similar_words = similar_words
+
+
+
+        
 
     def _add_to_single_words(self, word_1, word_2):
         if word_1 in self.single_word_dict.keys():
