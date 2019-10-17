@@ -25,5 +25,11 @@ class FileLoader:
                 for word in split[1].split(", "):
                     word = word[1:-1]
                     temp_set.add(word)
-                dictionary.update({split[0]: temp_set})
+                dictionary.update({self.convert_to_quad(split[0]): temp_set})
         return dictionary
+
+    def convert_to_quad(self, word):
+        word = word[1:-1]
+        parts = word.split(", ")
+        return (parts[0][1:-1], parts[1][1:-1])
+        

@@ -4,7 +4,7 @@ import collections
 import random
 
 class SenteceGenerator:
-    def __init__(self, path, clean_list=[]):
+    def __init__(self, path, argument, save_path, clean_list=[]):
         self.end_characters = [
             ".",
             "!",
@@ -43,7 +43,22 @@ class SenteceGenerator:
             self._add_to_names(word_1, word_2, names)
         self.capitals = list(capitals)
         self.names = list(names)
-        self._build_similar_words()
+        self.similar_words = dict()
+        if argument != "-n":
+            if argument == "-l":
+                similar_loader = file_loader.FileLoader(save_path)
+                self.similar_words = similar_loader.load_file_into_dict()
+                for key in self.similar_words.keys():
+                    if self.double_word_dict.get(key) != None:
+                        if set(self.similar_words.get(key)).issubset(self.double_word_dict.get(key)) == False:
+                            print(self.similar_words.get(key))
+                            print(self.double_word_dict.get(key))
+            elif argument == "-s":
+                self._build_similar_words()
+                self.save_similar_words(save_path)
+        else:
+            self._build_similar_words()
+
         print("Data generated from " + str(amount) + " words.")
         print("\n")
 
@@ -77,7 +92,7 @@ class SenteceGenerator:
         val = 0
         for key, values in self.double_word_dict.items():
             val += 1
-            if current == 45000:
+            if current == 205000:
                 print("Progress: " + str(val) + " / " + str(maximum))
                 current = 0
                 current_transpose += 1
@@ -94,35 +109,49 @@ class SenteceGenerator:
                         transposes[current_transpose].update({value : value_set})
         maximum = 0
         for transpose in transposes:
-            maximum += len(transpose)
+            keys = list(transpose.keys())
+            for key in keys:
+                values = list(transpose.get(key))
+                for i in range(0, len(values)):
+                    maximum += len(values) - i
         current = 0
+        loop_iteration = 0
         for transpose in transposes:
-            for key, value in transpose.items():
-                print("Progress: " + str(current) + " / " + str(maximum) + " - len " + str(len(value) * len(value)))
-                current += 1
-                for quad_1 in value:
-                    for quad_2 in value:
-                        if quad_1 != quad_2:
-                            word_set_1 = set(self.double_word_dict.get(quad_1))
-                            word_set_2 = set(self.double_word_dict.get(quad_2))
+            keys = list(transpose.keys())
+            for key in keys:
+                values = list(transpose.get(key))
+                for i in range(0, len(values)):
+                    dual_1 = values[i]
+                    current += 1
+                    if loop_iteration == 1000:
+                        print("Progress: " + str(current) + " / " + str(maximum))
+                        loop_iteration = 0
+                    else:
+                        loop_iteration += 1
+                    for ii in range(i, len(values)):
+                        dual_2 = values[ii]
+                        if dual_1 != dual_2:
+                            current += 1
+                            word_set_1 = set(self.double_word_dict.get(dual_1))
+                            word_set_2 = set(self.double_word_dict.get(dual_2))
                             intersection_size = len(word_set_1.intersection(word_set_2))
                             larger_size = max(len(word_set_1), len(word_set_2))
                             if larger_size > 1:
                                 similiarity = intersection_size / larger_size
-                                if similiarity > 0.75:
-                                    if quad_1 in similar_words:
-                                        similar_words[quad_1].add(quad_2)
+                                if similiarity > 0.635:
+                                    if dual_1 in similar_words:
+                                        similar_words[dual_1].union(self.double_word_dict.get(dual_2))
                                     else:
-                                        similar_words.update({quad_1 : set([quad_2])})
-                                    if quad_2 in similar_words:
-                                        similar_words[quad_2].add(quad_1)
+                                        similar_words.update({dual_1 : set(self.double_word_dict.get(dual_2))})
+                                    if dual_2 in similar_words:
+                                        similar_words[dual_2].union(self.double_word_dict.get(dual_1))
                                     else:
-                                        similar_words.update({quad_2 : set([quad_1])})
+                                        similar_words.update({dual_1 : set(self.double_word_dict.get(dual_1))})
         self.similar_words = similar_words
 
-
-
-        
+    def save_similar_words(self, path):
+        loader = file_loader.FileLoader(path)
+        loader.write_dict_into_file(self.similar_words)
 
     def _add_to_single_words(self, word_1, word_2):
         if word_1 in self.single_word_dict.keys():
@@ -223,14 +252,20 @@ class SenteceGenerator:
     def _chain_length_2(self, chain, rand):
         if rand.randrange(10) < 1:
             return self._chain_length_1(chain)
-        doubles = self.double_word_dict.get( (chain[-2], chain[-1]) )
+        dual = (chain[-2], chain[-1])
+        doubles = self.double_word_dict.get( dual )
         if doubles == None or doubles == []:
             return self._chain_length_1(chain)
         else:
-            return np.random.choice(self.double_word_dict[ (chain[-2], chain[-1]) ])
+            word = np.random.choice(self.double_word_dict[dual])
+            if self.similar_words.get(dual) != None:
+                if rand.randrange(10) < 5:
+                    if self.similar_words.get(dual).difference(self.double_word_dict.get(dual)):
+                        word = np.random.choice(list(self.similar_words[dual].difference(self.double_word_dict.get(dual))))
+            return word
 
     def _chain_length_3(self, chain, rand):
-        if rand.randrange(10) < 1:
+        if rand.randrange(10) < 5:
             return self._chain_length_2(chain, rand)
         triples = self.triple_word_dict.get( (chain[-3], chain[-2], chain[-1]) )
         if triples == None or triples == []:
@@ -239,11 +274,13 @@ class SenteceGenerator:
             return np.random.choice(self.triple_word_dict[ (chain[-3], chain[-2], chain[-1]) ])
 
     def _chain_length_4(self, chain, rand):
-        if rand.randrange(10) < 2:
+        if rand.randrange(10) < 5:
             return self._chain_length_2(chain, rand)
-        quads = self.quad_word_dict.get( (chain[-4], chain[-3], chain[-2], chain[-1]) )
+        quad = (chain[-4], chain[-3], chain[-2], chain[-1])
+        quads = self.quad_word_dict.get((chain[-4], chain[-3], chain[-2], chain[-1]))
         if quads == None or quads == []:
             return self._chain_length_3(chain, rand)
         else:
-            return np.random.choice(self.quad_word_dict[ (chain[-4], chain[-3], chain[-2], chain[-1]) ])
+            word = np.random.choice(self.quad_word_dict[ quad ])
+            return word
 
